@@ -51,6 +51,13 @@ public class Main {
         String filePath = saveContractToFile(contract);
 
         encryptAndSaveContract(filePath);
+
+        System.out.print("\nDo you want to save a document related to this contract? (yes/no): ");
+        String saveDoc = sc.nextLine().trim().toLowerCase();
+
+        if (saveDoc.equals("yes")) {
+            saveDocument();
+        }
     }
 
     public static String saveContractToFile(RentalContract contract) {
@@ -83,7 +90,6 @@ public class Main {
             return null;
         }
     }
-    
 
     public static void encryptAndSaveContract(String filePath) {
         if (filePath == null) {
@@ -106,20 +112,31 @@ public class Main {
             String encryptedFilePath = filePath + "_encrypted.txt";
             AES256Example.writeFile(encryptedFilePath, encryptedData);
             System.out.println("Encrypted contract saved to: " + encryptedFilePath);
-
-            System.out.print("Do you want to decrypt the file? (yes/no): ");
-            String choice = sc.nextLine().trim().toLowerCase();
-
-            if (choice.equals("yes")) {
-                String readEncryptedData = AES256Example.readFile(encryptedFilePath);
-                if (readEncryptedData != null) {
-                    String decryptedData = AES256Example.decrypt(readEncryptedData, key);
-                    System.out.println("Decrypted Contract: \n" + decryptedData);
-                }
-            }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void saveDocument() {
+        System.out.print("Enter Document Type (Normal, Confidential): ");
+        String docType = sc.nextLine().trim().toLowerCase();
+
+        System.out.print("Enter Document Name: ");
+        String fileName = sc.nextLine().trim();
+
+        System.out.print("Enter Document Content: ");
+        String content = sc.nextLine().trim();
+
+        Document document;
+        if (docType.equals("normal")) {
+            document = new NormalDoc(fileName, content);
+        } else if (docType.equals("confidential")) {
+            document = new ConfidentialDoc(fileName, content);
+        } else {
+            System.out.println("Invalid document type!");
+            return;
+        }
+
+        document.buildDoc();
     }
 }

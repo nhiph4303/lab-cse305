@@ -1,1 +1,0 @@
-RentalContract{contractType='LongTerm', contractID='05', propertyID='5', tenantID='8', rentAmount=90.0}

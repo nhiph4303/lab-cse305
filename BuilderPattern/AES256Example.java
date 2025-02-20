@@ -1,14 +1,44 @@
 import java.io.*;
 import java.util.*;
 import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 
 public class AES256Example {
     static Scanner sc = new Scanner(System.in);
-    
+    private static final String KEY_FILE = "aes_key.key"; // 🔑 File lưu khóa AES
+
+    public static SecretKey getOrCreateKey() throws Exception {
+        File keyFile = new File(KEY_FILE);
+        if (keyFile.exists()) {
+            return loadKey(); //
+        } else {
+            SecretKey key = generateKey();
+            saveKey(key);
+            return key;
+        }
+    }
+
     public static SecretKey generateKey() throws Exception {
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         keyGen.init(256);
         return keyGen.generateKey();
+    }
+
+    public static void saveKey(SecretKey key) throws IOException {
+        byte[] encoded = key.getEncoded();
+        String keyString = Base64.getEncoder().encodeToString(encoded);
+        try (FileWriter writer = new FileWriter(KEY_FILE)) {
+            writer.write(keyString);
+        }
+    }
+
+    public static SecretKey loadKey() throws IOException {
+        String keyString;
+        try (Scanner scanner = new Scanner(new File(KEY_FILE))) {
+            keyString = scanner.nextLine();
+        }
+        byte[] decoded = Base64.getDecoder().decode(keyString);
+        return new SecretKeySpec(decoded, "AES");
     }
 
     public static String encrypt(String plainText, SecretKey key) throws Exception {
@@ -48,7 +78,7 @@ public class AES256Example {
 
     public static void main(String[] args) {
         try {
-            SecretKey key = generateKey();
+            SecretKey key = getOrCreateKey();
 
             System.out.print("Enter the file path to encrypt: ");
             String contractFilePath = sc.nextLine();
