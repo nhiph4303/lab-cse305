@@ -40,7 +40,7 @@ public class Main {
 
         System.out.print("Enter Rent Amount: ");
         double rentAmount = sc.nextDouble();
-        sc.nextLine(); 
+        sc.nextLine();
 
         RentalContract contract = client.requestCreateRentalContract(builder, contractID, propertyID, tenantID,
                 rentAmount, contractType);
@@ -48,27 +48,42 @@ public class Main {
         System.out.println("\nRental contract created successfully!");
         System.out.println(contract.toString());
 
+        String filePath = saveContractToFile(contract);
+
+        encryptAndSaveContract(filePath);
     }
 
     public static String saveContractToFile(RentalContract contract) {
         try {
-            File directory = new File("contracts");
+            String projectDirectory = System.getProperty("user.dir");
+            File directory = new File(projectDirectory + "/contracts"); 
+    
             if (!directory.exists()) {
-                directory.mkdir();
+                boolean created = directory.mkdirs();
+                if (created) {
+                    System.out.println("Directory 'contracts' created in: " + directory.getAbsolutePath());
+                } else {
+                    System.out.println("Error: Could not create 'contracts' directory.");
+                    return null;
+                }
             }
-
-            String fileName = "contracts/" + contract.getContractID() + "_Contract.txt";
+    
+            String fileName = directory.getAbsolutePath() + "/" + contract.getContractType() + contract.getContractID() + "_Contract.txt";
+    
+            System.out.println("Saving contract to: " + fileName);
+    
             FileWriter writer = new FileWriter(fileName, true);
             writer.write(contract.toString() + "\n");
             writer.close();
-
-            System.out.println("Contract saved to file: " + fileName);
+    
+            System.out.println("Contract saved successfully: " + fileName);
             return fileName;
         } catch (IOException e) {
             System.out.println("Error saving contract to file: " + e.getMessage());
             return null;
         }
     }
+    
 
     public static void encryptAndSaveContract(String filePath) {
         if (filePath == null) {
